@@ -1,0 +1,33 @@
+version: '3.7'
+services:
+  mssql-server:
+    image: mcr.microsoft.com/mssql/server
+    ports:
+      - "1443:1443"
+    environment:
+      - SA_PASSWORD=TestP4ssword?
+      - ACCEPT_EULA=Y
+    volumes:
+      - mssql-server:/var/opt/mssql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  frontend:
+    image: greedygrinner1/syp024b06frontend
+    ports:
+      - "4200:80"
+
+  backend:
+    image: greedygrinner1/syp024b06backend
+    ports:
+      - "7000:7000"
+    depends_on:
+      - mssql-server
+    environment:
+      - DATABASE_HOST=mssql-server
+      - DATABASE_PORT=1433
+      - DATABASE_USER=SA  
+      - DATABASE_PASSWORD=TestP4ssword?
+
+volumes:
+  mssql-server:
+    driver: local
