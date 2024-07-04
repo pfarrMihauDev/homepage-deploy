@@ -206,3 +206,5 @@ VALUES ('Kapelle Michelndorf',
         '1873 wurde die Kapelle außen und innen restauriert. In den Jahren 1985 bis 1987 wurde nach hundert Jahren wieder eine Renovierung fällig.',
         '',
         8);
+
+INSERT INTO pfarrgemeinde.admin (anmeldename, passwort) VALUES ('test', '025c633aed253989a06c2004b9619904170b00e54fc88666a68081fe0c527ecc');

@@ -1,10 +1,9 @@
-version: '3.8'
 services:
   db:
-    image: mcr.microsoft.com/mssql/server
-    user: root
+    image: mcr.microsoft.com/mssql/server:2019-latest   # 2022 seems to have a problem with the linux kernel of the server
     ports:
       - "1433:1433"
+    user: root
     environment:
       - SA_PASSWORD=TestP4ssword?
       - ACCEPT_EULA=Y
@@ -15,7 +14,9 @@ services:
   frontend:
     image: greedygrinner1/syp024b06frontend:1.1
     ports:
-      - "4200:80"
+      - "80:80"
+    volumes:
+      - ./certs:/etc/ssl/certs
 
   backend:
     image: greedygrinner1/syp024b06backend:1.2
