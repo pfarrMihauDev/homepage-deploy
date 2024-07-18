@@ -1,22 +1,27 @@
+version: '3.8'
 services:
   db:
-    image: mcr.microsoft.com/mssql/server:2019-latest   # 2022 seems to have a problem with the linux kernel of the server
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    user: root
     ports:
       - "1433:1433"
-    user: root
     environment:
       - SA_PASSWORD=TestP4ssword?
       - ACCEPT_EULA=Y
     volumes:
       - db:/var/opt/mssql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
 
   frontend:
-    image: greedygrinner1/syp024b06frontend:1.1
+    image: greedygrinner1/syp024b06frontend:unstable3
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./certs:/etc/ssl/certs
+      - ../../etc/ssl/certs:/etc/ssl/certs
+      - ../backend/ftp:/ftp
+    restart: always
 
   backend:
     image: greedygrinner1/syp024b06backend:1.2
@@ -26,6 +31,7 @@ services:
       - db
     links:
       - db
+    restart: always
 
 volumes:
   db:
