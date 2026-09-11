@@ -1,5 +1,7 @@
 # Docker compose file for Pfarrgemeinde Michelhausen Homepage
 
+Administrator documentation PDF is also in this repository
+
 ## Explaination
 This is the repo that needs to be cloned onto the server used to host the website.
 
