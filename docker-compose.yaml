@@ -1,38 +1,60 @@
-version: '3.8'
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2019-latest
     user: root
-    ports:
-      - "1433:1433"
     environment:
-      - SA_PASSWORD=TestP4ssword?
+      - SA_PASSWORD=${MSSQL_SA_PASSWORD}
       - ACCEPT_EULA=Y
     volumes:
       - db:/var/opt/mssql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
+    networks:
+      - back-network
+    healthcheck:
+      test: [
+        "CMD-SHELL", 
+        "/opt/mssql-tools18/bin/sqlcmd -U sa -P $${SA_PASSWORD} -C -Q 'SELECT 1' || exit 1"
+      ]
+      interval: 3s
+      timeout: 5s
+      retries: 20
 
   frontend:
-    image: greedygrinner1/syp024b06frontend:unstable3
+    image: ghcr.io/pfarrmihaudev/homepage-frontend:latest
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ../../etc/ssl/certs:/etc/ssl/certs
+      - ../../etc/letsencrypt/live/pfarre-michelhausen.at/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - ../../etc/letsencrypt/live/pfarre-michelhausen.at/privkey.pem:/etc/ssl/certs/privkey.pem:ro
       - ../backend/ftp:/ftp
     restart: always
+    networks:
+      - front-network
 
   backend:
-    image: greedygrinner1/syp024b06backend:1.2
-    ports:
-      - "7000:7000"
+    image: ghcr.io/pfarrmihaudev/homepage-backend:latest
+    env_file:
+      .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     links:
       - db
+    volumes:
+      - ../backend/ftp:/app/ftp
     restart: always
-
+    networks:
+      - front-network
+      - back-network
+    
 volumes:
   db:
     driver: local
+
+networks:
+  front-network:
+    driver: bridge
+  back-network:
+    driver: bridge
